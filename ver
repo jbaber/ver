@@ -37,9 +37,26 @@ function help_and_leave() {
 }
 
 function main() {
-  if [[ "$1" = "--help" || "$1" = "-h" ]]; then
-    help_and_leave
-  elif [[ $# -lt 2 ]]; then
+  if [[ $# -eq 1 ]]; then
+    if [[ "$1" = "--help" || "$1" = "-h" ]]; then
+      help_and_leave
+    elif [[ "$1" = "--bashrc-amendments" ]]; then
+      cat <<-"EOF"
+				function vir() {
+					LOGDIR="${XDG_DATA_HOME:-$HOME/.local/share}"
+					LOGFILE="$LOGDIR"/ver-log
+					if [[ -s "$LOGFILE" ]]; then
+						ver "$(head -1 $LOGFILE)" "$@"
+					fi
+				}
+			EOF
+      exit 0
+    else
+      help_and_cry
+    fi
+  fi
+
+  if [[ $# -lt 2 ]]; then
     help_and_cry
   fi
 
@@ -67,16 +84,4 @@ function main() {
   fi
 }
 
-if [[ "$1" = "--bashrc-amendments" ]]; then
-	cat <<-"EOF"
-	function vir() {
-		LOGDIR="${XDG_DATA_HOME:-$HOME/.local/share}"
-		LOGFILE="$LOGDIR"/ver-log
-		if [[ -s "$LOGFILE" ]]; then
-			ver "$(head -1 $LOGFILE)" "$@"
-		fi
-	}
-	EOF
-else
-  main "$@"
-fi
+main "$@"
