@@ -23,3 +23,9 @@ ver doit.bash init
 vir add doit.bash
 vir commit -m "Add doit.bash"
 ```
+
+INSTALL
+=======
+```
+mkdir -p $HOME/bin && cd $HOME/bin && ln -s /path/to/this/repository/ver
+```
