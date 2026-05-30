@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+function log() {
+  LOGDIR="${XDG_DATA_HOME:-$HOME/.local/share}"
+  LOGFILE="$LOGDIR"/ver-log
+
+  if [[ ! -d "$LOGDIR" ]]; then
+    mkdir -p "$LOGDIR"
+  fi
+  echo "$1" > "$LOGFILE"
+}
+
+function print_help() {
+  VER="$(basename $0)"
+  echo "Usage: $VER <filename> <anything git can do>"
+  echo "       vir <anything git can do>"
+  echo
+  echo "vir calls ver with the most recent <filename>."
+  echo
+  echo "Put"
+  echo
+  echo 'eval "$('$VER' --bashrc-amendments)"'
+  echo
+  echo "in "'$HOME/.bashrc'" (or your shell's equivalent) to make 'vir' available"
+}
+
+function help_and_cry() {
+  print_help
+  exit 1
+}
+
+function help_and_leave() {
+  print_help
+  exit 0
+}
+
+function main() {
+  if [[ "$1" = "--help" || "$1" = "-h" ]]; then
+    help_and_leave
+  elif [[ $# -lt 2 ]]; then
+    help_and_cry
+  fi
+
+  FILEPATH="$1"
+  FILENAME="$(basename "$FILEPATH")"
+  DIRNAME="$(dirname "$FILEPATH")"
+  GITDIR="$DIRNAME/.$FILENAME.git"
+
+  log "$FILEPATH"
+
+  if [[ "$2" = "init" ]]; then
+    if [[ -e "$GITDIR" ]]; then
+      echo "$GITDIR already exists.  Too scared."
+      exit 1
+    fi
+
+    set -x
+    git init --bare "$GITDIR"
+  elif [[ $2 = "status" ]]; then
+    set -x
+    git --work-tree="$DIRNAME" --git-dir="$GITDIR" status "$FILEPATH"
+  else
+    set -x
+    git --work-tree="$DIRNAME" --git-dir="$GITDIR" "${@:2:$#}"
+  fi
+}
+
+if [[ "$1" = "--bashrc-amendments" ]]; then
+	cat <<-"EOF"
+	function vir() {
+		LOGDIR="${XDG_DATA_HOME:-$HOME/.local/share}"
+		LOGFILE="$LOGDIR"/ver-log
+		if [[ -s "$LOGFILE" ]]; then
+			ver "$(head -1 $LOGFILE)" "$@"
+		fi
+	}
+	EOF
+else
+  main "$@"
+fi
