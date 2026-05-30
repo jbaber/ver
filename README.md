@@ -4,7 +4,7 @@ Git version individual files without being in a (visible) git repository.
 
 USAGE
 =====
-- `ver <filename> <anything git can do>`
+`ver <filename> <anything git can do>`
 
 EXAMPLE
 =======
