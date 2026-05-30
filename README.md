@@ -5,14 +5,21 @@ Git version individual files without being in a (visible) git repository.
 USAGE
 =====
 - `ver <filename> <anything git can do>`
-- `vir <anything git can do>`
 
-`vir` calls ver with the most recent `<filename>`.
-
-Put
-
+EXAMPLE
+=======
+You've got a quick script, `doit.bash`, that you want to version control so you can move faster.
 ```
-eval "$(ver --bashrc-amendments)"
+ver doit.bash init
 ```
-
-in `$HOME/.bashrc` (or your shell's equivalent) to make `vir` available
+creates a git repo associated with `doit.bash`.  Then
+```
+ver doit.bash add doit.bash
+ver doit.bash commit -m "Add doit.bash"
+```
+makes your first commit.  If you'd added `eval $(ver --bashrc-amendments)` to your `$HOME/.bashrc`, then you could use the `vir` shorthand which uses the most recent `<filename>`.  That would look like
+```
+ver doit.bash init
+vir add doit.bash
+vir commit -m "Add doit.bash"
+```
